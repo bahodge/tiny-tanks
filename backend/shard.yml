@@ -1,0 +1,17 @@
+name: backend
+version: 0.1.0
+
+authors:
+  - Ben Hodge <benjamin.andrew.hodge@gmail.com>
+
+targets:
+  backend:
+    main: src/backend.cr
+
+dependencies:
+  kemal:
+    github: kemalcr/kemal
+
+crystal: 1.3.2
+
+license: MIT
