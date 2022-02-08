@@ -3,15 +3,15 @@ require "kemal"
 require "uuid"
 require "json"
 require "./game/manager.cr"
-require "./identity/manager.cr"
+
+# require "./database.cr"
 
 module Backend
-  INTERVAL = 10_000
-  VERSION  = "0.1.0"
+  VERSION = "0.1.0"
 
   # Create the global game manager
   game_manager = Game::Manager.new
-  identity_manager = Identity::Manager.new
+  # database = Database.new
 
   before_all do |env|
     env.response.headers["Access-Control-Allow-Origin"] = "*"
@@ -75,23 +75,9 @@ module Backend
     {data: game_manager.sessions}.to_json
   end
 
-  # ############## IDENTITY #####################
+  # ################### USERS ############################
 
-  options "/identity" do |env|
-    env.response.headers["Access-Control-Allow-Methods"] = "GET, PUT, POST, DELETE, OPTIONS"
-  end
-
-  # Return a token for your identity
-  get "/identity" do |env|
-    id = env.params.query["id"].as(String)
-
-    {data: (identity_manager.users.find &.id == id) || nil}.to_json
-  end
-
-  post "/identity/create" do |env|
-    user = identity_manager.create_user
-
-    {data: user}.to_json
+  get "/users" do |env|
   end
 
   messages = [] of String
