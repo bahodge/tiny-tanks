@@ -4,27 +4,32 @@ require "json"
 require "./player.cr"
 
 class Game::Session
-  getter :id, :players, :leader
+  include JSON::Serializable
+  property id : String
+  # property players : [] of Game::Player
+  # property leader : Game::Player
+
+  getter :id
 
   def initialize
     # Create a random id for this session
-    @id = UUID.random
+    @id = UUID.random.to_s
 
     # track the players within the session
-    @players = [] of Game::Player
+    # @players = [] of Game::Player
   end
 
-  def leader
-    if @leader.nil?
-      # The first player (game creator is the leader)
-      @leader = @players[0]
-      @leader
-    else
-      @leader
-    end
+  def serialize_id
+    @id.to_s
   end
 
-  def to_json
-    {"id" => @id.to_s, "players" => @players.map &.to_json}.to_json
-  end
+  # def leader
+  #   if @leader.nil?
+  #     # The first player (game creator is the leader)
+  #     @leader = @players[0]
+  #     @leader
+  #   else
+  #     @leader
+  #   end
+  # end
 end

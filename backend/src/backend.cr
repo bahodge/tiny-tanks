@@ -1,6 +1,7 @@
 # TODO: Write documentation for `Backend`
 require "kemal"
 require "uuid"
+require "json"
 require "./game/manager.cr"
 
 module Backend
@@ -15,27 +16,27 @@ module Backend
     env.response.headers["Access-Control-Allow-Methods"] = "GET, PUT, POST, DELETE, OPTIONS"
   end
 
-  before_all "/game_session" do |env|
+  before_all "/*" do |env|
     env.response.content_type = "application/json"
   end
 
-  before_all "/game_sessions" do |env|
-    env.response.content_type = "application/json"
-  end
+  # before_all "/game_sessions/*" do |env|
+  #   env.response.content_type = "application/json"
+  # end
 
-  options "/game_session" do |env|
+  options "/game_session/*" do |env|
     env.response.headers["Content-Type"] = "application/text"
     "GET, PUT, POST, DELETE, OPTIONS"
   end
 
-  post "/game_session" do |env|
+  post "/game_session/create" do |env|
     puts "post /game_session"
     session = game_manager.create_session
 
     {"data" => "Session created #{session.id}"}.to_json
   end
 
-  delete "/game_session" do |env|
+  delete "/game_session/delete" do |env|
     puts "delete /game_session"
 
     {"data" => "Session closed!"}.to_json
@@ -61,7 +62,8 @@ module Backend
   get "/game_sessions" do |env|
     puts "get /game_sessions"
 
-    {"data" => game_manager.sessions.map { |session| session.to_json }}.to_json
+    puts "response #{{data: game_manager.sessions}.to_json}"
+    {data: game_manager.sessions}.to_json
   end
 
   messages = [] of String

@@ -1,26 +1,30 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import "./App.css";
+
+type Player = {
+  id: string;
+  name: string;
+};
+
+type GameSession = {
+  id: string;
+  players: Player[];
+};
 
 // import Game from "./components/Game";
 // import Connection from "./services/connection";
 
 const createGameSession = () => {
-  return fetch("http://localhost:4000/game_session", {
+  return fetch("http://localhost:4000/game_session/create", {
     method: "post",
     body: JSON.stringify({ data: "hello from post" }),
   }).then((response) => console.log("response", response.body));
 };
 
 const deleteGameSession = () => {
-  return fetch("http://localhost:4000/game_session", {
+  return fetch("http://localhost:4000/game_session/delete", {
     method: "delete",
-    body: JSON.stringify({ data: "deleteing game session" }),
-  }).then((response) => console.log("response", response.body));
-};
-
-const getGameSessions = () => {
-  return fetch("http://localhost:4000/game_sessions", {
-    method: "get",
+    body: JSON.stringify({ data: "deleting game session" }),
   }).then((response) => console.log("response", response.body));
 };
 
@@ -34,13 +38,17 @@ const getGameSession = () => {
 };
 
 const App: React.FC = () => {
-  useEffect(() => {
-    // const connection = new Connection({ url: "ws://localhost:4000/" });
-    // console.log("connection.socket", connection.ws);
-    // return () => {
-    //   connection.ws.close();
-    // };
-  }, []);
+  const [sessions, setSessions] = useState<GameSession[]>([]);
+
+  const getGameSessions = (): Promise<void> => {
+    return fetch("http://localhost:4000/game_sessions")
+      .then((response) => response.json())
+      .then((payload) => {
+        const { data } = payload;
+        console.log("data", data);
+        setSessions(data);
+      });
+  };
 
   return (
     <div className="App">
@@ -49,9 +57,15 @@ const App: React.FC = () => {
       <button onClick={() => getGameSessions()}>Get Game Sessions</button>
       <button onClick={() => getGameSession()}>Get Game Session</button>
 
-      {/* <header className="App-header"></header>
-
-      <Game /> */}
+      <div>
+        <ul>
+          {sessions.map((session, idx) => (
+            <li key={idx}>
+              Session #{idx} - {session.id}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };
