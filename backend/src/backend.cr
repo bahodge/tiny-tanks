@@ -3,6 +3,7 @@ require "kemal"
 require "uuid"
 require "json"
 require "./game/manager.cr"
+require "./identity/manager.cr"
 
 module Backend
   INTERVAL = 10_000
@@ -10,19 +11,16 @@ module Backend
 
   # Create the global game manager
   game_manager = Game::Manager.new
+  identity_manager = Identity::Manager.new
 
   before_all do |env|
     env.response.headers["Access-Control-Allow-Origin"] = "*"
     env.response.headers["Access-Control-Allow-Methods"] = "GET, PUT, POST, DELETE, OPTIONS"
-  end
-
-  before_all "/*" do |env|
-    env.response.content_type = "application/json"
+    env.response.headers["Content-Type"] = "application/text"
+    env.response.headers["Access-Control-Allow-Headers"] = "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers"
   end
 
   options "/game_session/*" do |env|
-    env.response.headers["Content-Type"] = "application/text"
-    env.response.headers["Access-Control-Allow-Headers"] = "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers"
     env.response.headers["Access-Control-Allow-Methods"] = "GET, PUT, POST, DELETE, OPTIONS"
   end
 
@@ -75,6 +73,25 @@ module Backend
 
     puts "response #{{data: game_manager.sessions}.to_json}"
     {data: game_manager.sessions}.to_json
+  end
+
+  # ############## IDENTITY #####################
+
+  options "/identity" do |env|
+    env.response.headers["Access-Control-Allow-Methods"] = "GET, PUT, POST, DELETE, OPTIONS"
+  end
+
+  # Return a token for your identity
+  get "/identity" do |env|
+    id = env.params.query["id"].as(String)
+
+    {data: (identity_manager.users.find &.id == id) || nil}.to_json
+  end
+
+  post "/identity/create" do |env|
+    user = identity_manager.create_user
+
+    {data: user}.to_json
   end
 
   messages = [] of String

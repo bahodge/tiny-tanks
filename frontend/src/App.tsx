@@ -11,6 +11,21 @@ type GameSession = {
   players: Player[];
 };
 
+const getIdentity = ({ id }: { id: string }) => {
+  const url = new URL("http://localhost:4000/identity");
+  url.search = new URLSearchParams({ id }).toString();
+
+  return fetch(url.toString(), {
+    method: "get",
+  }).then((response) => console.log("response", response.body));
+};
+
+const createIdentity = () => {
+  return fetch("http://localhost:4000/identity/create", {
+    method: "post",
+  }).then((response) => console.log("response", response.body));
+};
+
 // import Game from "./components/Game";
 // import Connection from "./services/connection";
 
@@ -63,11 +78,20 @@ const App: React.FC = () => {
 
   return (
     <div className="App">
-      <button onClick={() => createGameSession()}>Create Game</button>
-      <button onClick={() => deleteGameSession()}>Delete Game</button>
-      <button onClick={() => getGameSessions()}>Get Game Sessions</button>
-      <button onClick={() => getGameSession()}>Get Game Session</button>
-      <button onClick={() => joinGameSession()}>Join Game Session</button>
+      <div>
+        <h3>Sessions</h3>
+        <button onClick={() => createGameSession()}>Create Game</button>
+        <button onClick={() => deleteGameSession()}>Delete Game</button>
+        <button onClick={() => getGameSessions()}>Get Game Sessions</button>
+        <button onClick={() => getGameSession()}>Get Game Session</button>
+        <button onClick={() => joinGameSession()}>Join Game Session</button>
+      </div>
+
+      <div>
+        <h3>Identity</h3>
+        <button onClick={() => getIdentity({ id: "asdf" })}>getIdentity</button>
+        <button onClick={() => createIdentity()}>createIdentity</button>
+      </div>
 
       <div>
         <ul>
