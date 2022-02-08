@@ -2,6 +2,10 @@ use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 
 use std::cell::Cell;
 
+mod database;
+
+use crate::database::Database;
+
 struct Counter {
     count: Cell<usize>,
 }
@@ -11,26 +15,21 @@ struct User {
 }
 
 /// Use the `Data<T>` extractor to access data in a handler.
-async fn update_counter(counter: web::Data<Counter>, user: web::Data<User>) -> impl Responder {
-    println!("user.age: {:?}", user.age.get());
-
-    counter.count.set(counter.count.get() + 1);
-    println!("current count {}", counter.count.get());
+async fn update_counter() -> impl Responder {
     HttpResponse::Ok()
         .content_type("text/plain")
         .header("Access-Control-Allow-Origin", "*")
-        .body(String::from(counter.count.get().to_string()))
+        .body("asdf")
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    // Create the database
     // Start HTTP server
     HttpServer::new(move || {
+        let database = web::Data::new(Database::new(String::from("tanks")));
         App::new()
-            .data(Counter {
-                count: Cell::new(0),
-            })
-            .data(User { age: Cell::new(31) })
+            .data(database)
             .service(web::resource("/update_counter").route(web::get().to(update_counter)))
     })
     .bind("127.0.0.1:4000")?

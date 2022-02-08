@@ -1,14 +1,15 @@
-#[derive(Clone)]
+use std::cell::Cell;
+
 pub struct Database {
-    // collections: Vec<Collection>,
-    name: String,
+    collections: Cell<Vec<Collection>>,
+    pub name: String,
 }
 
 impl Database {
     pub fn new(name: String) -> Database {
         Database {
             name,
-            // collections: Vec.new(),
+            collections: Cell::new(Vec::new()),
         }
     }
 
@@ -17,9 +18,13 @@ impl Database {
     // }
 }
 
-pub struct Collection<T> {
-    records: Vec<T>,
-    name: String,
+pub struct Collection {
+    pub name: String,
+    records: Vec<Record>,
+}
+
+pub struct Record {
+    id: String,
 }
 
 // impl<T> Collection<T> {
