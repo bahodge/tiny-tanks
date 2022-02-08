@@ -1,18 +1,16 @@
 require "json"
+require "uuid/json"
+require "./token.cr"
 
 class User
   include JSON::Serializable
-  getter :name
+  getter :name, :token
   setter :name
 
   def initialize(@name : String)
-  end
+    # Create a random ID for this user
+    @id = UUID.random
 
-  def get_type
-    Hash(String, Any)
-  end
-
-  def to_h
-    {"name" => @name}
+    @token = Token.new @id
   end
 end

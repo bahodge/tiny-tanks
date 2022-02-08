@@ -1,36 +1,32 @@
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 
-use std::cell::Cell;
-
 mod database;
 
 use crate::database::Database;
 
-struct Counter {
-    count: Cell<usize>,
-}
-
-struct User {
-    age: Cell<i32>,
-}
-
 /// Use the `Data<T>` extractor to access data in a handler.
-async fn update_counter() -> impl Responder {
+async fn get_database_name(db: web::Data<Database>) -> impl Responder {
+    println!("db name: {}", db.name);
+
+    let database_name = &db.name;
+
     HttpResponse::Ok()
         .content_type("text/plain")
         .header("Access-Control-Allow-Origin", "*")
-        .body("asdf")
+        .body("asdfasdf")
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // Create the database
+
     // Start HTTP server
     HttpServer::new(move || {
-        let database = web::Data::new(Database::new(String::from("tanks")));
+        let db = Database::new(String::from("tanks"));
+        let data = web::Data::new(db);
         App::new()
-            .data(database)
-            .service(web::resource("/update_counter").route(web::get().to(update_counter)))
+            .data(data.clone())
+            .service(web::resource("/get_database_name").route(web::get().to(get_database_name)))
     })
     .bind("127.0.0.1:4000")?
     .run()

@@ -80,6 +80,7 @@ type User = {
 
 const BASE_URL = "http://127.0.0.1:4000";
 const USERS_ROUTE = "/users";
+const CREATE_USER_ROUTE = "/users/create";
 
 const App: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -94,11 +95,20 @@ const App: React.FC = () => {
       });
   };
 
-  const updateCounter = (): Promise<void> => {
-    return fetch(BASE_URL + "/update_counter")
-      .then((response) => response.body)
-      .then((r) => console.log("r", r))
-      .catch((e) => console.log("error", e));
+  const createUser = (event: React.SyntheticEvent): Promise<void> => {
+    event.preventDefault();
+    const target = event.target as typeof event.target & {
+      name: { value: string };
+    };
+    return fetch(BASE_URL + CREATE_USER_ROUTE, {
+      method: "post",
+      body: JSON.stringify({ name: target.name.value }),
+      headers: { "content-type": "application/json" },
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        console.log("data", json.data);
+      });
   };
 
   return (
@@ -106,7 +116,13 @@ const App: React.FC = () => {
       <div>
         <h3>Users</h3>
         <button onClick={() => getUsers()}>getUsers</button>
-        <button onClick={() => updateCounter()}>updateCounter</button>
+        <form onSubmit={createUser}>
+          <label>
+            Name
+            <input id="name-input" name="name" type="text" />
+            <button>Submit</button>
+          </label>
+        </form>
       </div>
 
       <div>
