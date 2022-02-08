@@ -1,14 +1,24 @@
 class Game::Player
-  getter :name, :id
+  include JSON::Serializable
+
+  property id : String
+
+  getter :name, :id, :is_leader
   setter :name
 
   @name = "default name"
 
   def initialize(@name : String)
-    @id = UUID.random
+    @id = UUID.random.to_s
+    @is_leader = false
   end
 
-  def to_json
-    {"id" => @id.to_s, "name" => @name}.to_json
+  def elect
+    @is_leader = true
+    self
+  end
+
+  def is_leader?
+    @is_leader
   end
 end

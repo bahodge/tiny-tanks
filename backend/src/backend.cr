@@ -20,24 +20,35 @@ module Backend
     env.response.content_type = "application/json"
   end
 
-  # before_all "/game_sessions/*" do |env|
-  #   env.response.content_type = "application/json"
-  # end
-
   options "/game_session/*" do |env|
     env.response.headers["Content-Type"] = "application/text"
-    "GET, PUT, POST, DELETE, OPTIONS"
+    env.response.headers["Access-Control-Allow-Headers"] = "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers"
+    env.response.headers["Access-Control-Allow-Methods"] = "GET, PUT, POST, DELETE, OPTIONS"
   end
 
   post "/game_session/create" do |env|
-    puts "post /game_session"
+    puts "post /game_session/create"
     session = game_manager.create_session
 
     {"data" => "Session created #{session.id}"}.to_json
   end
 
+  post "/game_session/join" do |env|
+    name = env.params.json["name"].as(String)
+    id = env.params.json["id"].as(String)
+
+    session = game_manager.sessions.find { |session| session.id == id }
+
+    if session.nil?
+      {error: "Session with `#{id}` not found"}.to_json
+    else
+      session.add_player(name)
+      {data: "Joined session: #{session.id}"}.to_json
+    end
+  end
+
   delete "/game_session/delete" do |env|
-    puts "delete /game_session"
+    puts "delete /game_session/delete"
 
     {"data" => "Session closed!"}.to_json
   end
@@ -54,7 +65,7 @@ module Backend
       if session.nil?
         {"error" => "Session with `#{id}` not found"}.to_json
       else
-        {"data" => session.to_json}.to_json
+        {"data" => session}.to_json
       end
     end
   end

@@ -1,35 +1,37 @@
-# TODO - should have crud operations for players
-# TODO - should
 require "json"
 require "./player.cr"
 
 class Game::Session
   include JSON::Serializable
   property id : String
-  # property players : [] of Game::Player
-  # property leader : Game::Player
+  property players : Array(Game::Player)
 
-  getter :id
+  getter :id, :players
 
   def initialize
-    # Create a random id for this session
     @id = UUID.random.to_s
 
-    # track the players within the session
-    # @players = [] of Game::Player
+    @players = [] of Game::Player
   end
 
-  def serialize_id
-    @id.to_s
+  def leader
+    @players.find &.is_leader?
   end
 
-  # def leader
-  #   if @leader.nil?
-  #     # The first player (game creator is the leader)
-  #     @leader = @players[0]
-  #     @leader
-  #   else
-  #     @leader
-  #   end
-  # end
+  def elect_leader
+    current_leader = self.leader
+
+    if current_leader.nil?
+      @players[0].elect # elect the first player who joined
+    end
+    current_leader
+  end
+
+  def add_player(name : String)
+    @players.push(Game::Player.new(name: name))
+
+    if self.leader.nil?
+      self.elect_leader
+    end
+  end
 end

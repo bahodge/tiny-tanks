@@ -43,11 +43,22 @@ const App: React.FC = () => {
   const getGameSessions = (): Promise<void> => {
     return fetch("http://localhost:4000/game_sessions")
       .then((response) => response.json())
-      .then((payload) => {
-        const { data } = payload;
-        console.log("data", data);
-        setSessions(data);
-      });
+      .then(({ data }) => setSessions(data));
+  };
+
+  const joinGameSession = (): Promise<void> => {
+    const params = {
+      id: "0da095ec-dde7-4556-8f2c-aeb442b155f0",
+      name: "my name",
+    };
+
+    return fetch("http://localhost:4000/game_session/join", {
+      method: "post",
+      body: JSON.stringify(params),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((response) => response.json());
   };
 
   return (
@@ -56,6 +67,7 @@ const App: React.FC = () => {
       <button onClick={() => deleteGameSession()}>Delete Game</button>
       <button onClick={() => getGameSessions()}>Get Game Sessions</button>
       <button onClick={() => getGameSession()}>Get Game Session</button>
+      <button onClick={() => joinGameSession()}>Join Game Session</button>
 
       <div>
         <ul>
