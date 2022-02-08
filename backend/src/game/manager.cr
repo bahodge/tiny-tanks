@@ -1,10 +1,10 @@
 require "./session.cr"
 
 class Game::Manager
+  getter :sessions
+
   def initialize
     @sessions = [] of Game::Session
-
-    # puts "Game Created: #{@session.id}"
   end
 
   def create_session
@@ -13,11 +13,7 @@ class Game::Manager
     session
   end
 
-  def close_session
-    @sessons.each { |session| puts session.id }
+  def close_session(session_id : UUID)
+    @sessons.delete { |session| session_id == session.id }
   end
-
-  # def session
-  #   @session
-  # end
 end

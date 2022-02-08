@@ -19,22 +19,49 @@ module Backend
     env.response.content_type = "application/json"
   end
 
+  before_all "/game_sessions" do |env|
+    env.response.content_type = "application/json"
+  end
+
+  options "/game_session" do |env|
+    env.response.headers["Content-Type"] = "application/text"
+    "GET, PUT, POST, DELETE, OPTIONS"
+  end
+
   post "/game_session" do |env|
-    puts "env #{env.response.headers}"
+    puts "post /game_session"
     session = game_manager.create_session
 
     {"data" => "Session created #{session.id}"}.to_json
   end
 
   delete "/game_session" do |env|
-    puts "env #{env.response.headers}"
+    puts "delete /game_session"
 
     {"data" => "Session closed!"}.to_json
   end
 
-  options "/game_session" do |env|
-    env.response.headers["Content-Type"] = "application/text"
-    "GET, PUT, POST, DELETE, OPTIONS"
+  get "/game_session" do |env|
+    puts "get /game_session"
+
+    unless env.params.query["id"]
+      {"error" => "Expected `id` query param"}.to_json
+    else
+      id : String = env.params.query["id"]
+      session = game_manager.sessions.find { |session| session.id == id }
+
+      if session.nil?
+        {"error" => "Session with `#{id}` not found"}.to_json
+      else
+        {"data" => session.to_json}.to_json
+      end
+    end
+  end
+
+  get "/game_sessions" do |env|
+    puts "get /game_sessions"
+
+    {"data" => game_manager.sessions.map { |session| session.to_json }}.to_json
   end
 
   messages = [] of String
