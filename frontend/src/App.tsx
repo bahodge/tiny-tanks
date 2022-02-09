@@ -105,10 +105,14 @@ const App: React.FC = () => {
       body: JSON.stringify({ name: target.name.value }),
       headers: { "content-type": "application/json" },
     })
-      .then((response) => response.json())
-      .then((json) => {
-        console.log("data", json.data);
-      });
+      .then((response) => {
+        if (response.status >= 400) {
+          throw new Error(response.statusText);
+        }
+        return response.json();
+      })
+      .then((responsePayload) => console.log(responsePayload))
+      .catch((error) => error.message);
   };
 
   return (

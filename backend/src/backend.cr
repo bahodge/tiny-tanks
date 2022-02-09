@@ -22,14 +22,17 @@ module Backend
 
   # ################### USERS ############################
   get "/users" do |env|
-    {data: connected_users}.to_json
+    {data: connected_users.map &.to_struct}.to_json
   end
 
   post "/users/create" do |env|
     unless env.params.json.has_key? "name"
-      raise InvalidArgument.new "Invalid Argument: `name` is required"
+      halt env, status_code: 400, response: "Bad Request `name` is required"
     end
 
+    if env.params.json["name"].as(String).empty?
+      halt env, status_code: 400, response: "Bad Request `name` is required"
+    end
     name = env.params.json["name"].as(String)
     user = User.new name
 
