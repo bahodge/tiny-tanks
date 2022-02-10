@@ -2,22 +2,6 @@ require "json"
 require "uuid/json"
 require "./token.cr"
 
-struct UserStruct
-  include JSON::Serializable
-  property name : String
-  property id : UUID
-
-  def initialize(@name : String, @id : UUID)
-  end
-
-  def to_json(json : JSON::Builder)
-    json.object do
-      json.field "id", @id.to_s
-      json.field "name", @name
-    end
-  end
-end
-
 class User
   include JSON::Serializable
   getter :name, :token
@@ -37,7 +21,21 @@ class User
     end
   end
 
-  def to_struct
-    UserStruct.new name: @name, id: @id
+  def to_safe
+    UserSafe.new @id, @name
+  end
+end
+
+class UserSafe
+  getter :name, :id
+
+  def initialize(@id : UUID, @name : String)
+  end
+
+  def to_json(json : JSON::Builder)
+    json.object do
+      json.field "id", @id.to_s
+      json.field "name", @name
+    end
   end
 end

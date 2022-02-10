@@ -10,7 +10,7 @@ end
 module Backend
   VERSION = "0.1.0"
 
-  # Setup the database
+  # Setup the users
   connected_users = [] of User
 
   before_all "/users/*" do |env|
@@ -22,7 +22,11 @@ module Backend
 
   # ################### USERS ############################
   get "/users" do |env|
-    {data: connected_users.map &.to_struct}.to_json
+    safe_users = connected_users.map do |user|
+      user.to_safe
+    end
+
+    {data: safe_users}.to_json
   end
 
   post "/users/create" do |env|
