@@ -2,7 +2,10 @@
 require "kemal"
 require "uuid"
 require "json"
+
 require "./user.cr"
+require "./connections.cr"
+require "./database.cr"
 
 class InvalidArgument < Exception
 end
@@ -10,8 +13,7 @@ end
 module Backend
   VERSION = "0.1.0"
 
-  # Setup the users
-  connected_users = [] of User
+  database = Database.new
 
   before_all "/users/*" do |env|
     env.response.headers["Access-Control-Allow-Origin"] = "*"
@@ -21,12 +23,8 @@ module Backend
   end
 
   # ################### USERS ############################
-  get "/users" do |env|
-    safe_users = connected_users.map do |user|
-      user.to_safe
-    end
-
-    {data: safe_users}.to_json
+  options "/users/create" do |env|
+    env.response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
   end
 
   post "/users/create" do |env|
@@ -40,13 +38,12 @@ module Backend
     name = env.params.json["name"].as(String)
     user = User.new name
 
-    connected_users.push(user)
     Log.info { "User created - #{name}" }
     {data: user}.to_json
   end
 
-  options "/users/create" do |env|
-    env.response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+  # ################## LOGIN ########################
+  post "/login" do |env|
   end
 
   Kemal.run 4000

@@ -4,7 +4,7 @@ require "./token.cr"
 
 class User
   include JSON::Serializable
-  getter :name, :token
+  getter :name, :id, :token
   setter :name
 
   def initialize(@name : String = "Default Name")
