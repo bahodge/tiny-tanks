@@ -14,6 +14,7 @@ module Backend
   VERSION = "0.1.0"
 
   database = Database.new
+  database.create_collection "users"
 
   before_all "/users/*" do |env|
     env.response.headers["Access-Control-Allow-Origin"] = "*"
@@ -37,6 +38,12 @@ module Backend
     end
     name = env.params.json["name"].as(String)
     user = User.new name
+
+    database.collections["users"].insert(id: user.id, record: user.to_json)
+
+    json = database.collections["users"].find_by(id: user.id)
+    p! "#{json}"
+    p! "#{User.from_json json}"
 
     Log.info { "User created - #{name}" }
     {data: user}.to_json

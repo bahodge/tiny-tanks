@@ -4,8 +4,14 @@ require "./token.cr"
 
 class User
   include JSON::Serializable
-  getter :name, :id, :token
-  setter :name
+  @[JSON::Field(key: "id")]
+  property id : UUID
+
+  @[JSON::Field(key: "token", converter: Token.from_encoded)]
+  property token : Token
+
+  @[JSON::Field(key: "name")]
+  property name : String
 
   def initialize(@name : String = "Default Name")
     # Create a random ID for this user
@@ -18,24 +24,6 @@ class User
       json.field "id", @id.to_s
       json.field "name", @name
       json.field "token", @token.encode
-    end
-  end
-
-  def to_safe
-    UserSafe.new @id, @name
-  end
-end
-
-class UserSafe
-  getter :name, :id
-
-  def initialize(@id : UUID, @name : String)
-  end
-
-  def to_json(json : JSON::Builder)
-    json.object do
-      json.field "id", @id.to_s
-      json.field "name", @name
     end
   end
 end
