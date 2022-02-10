@@ -8,12 +8,12 @@ use crate::database::Database;
 async fn get_database_name(db: web::Data<Database>) -> impl Responder {
     println!("db name: {}", db.name);
 
-    let database_name = &db.name;
+    let database_name = db.name.clone();
 
     HttpResponse::Ok()
         .content_type("text/plain")
         .header("Access-Control-Allow-Origin", "*")
-        .body("asdfasdf")
+        .body(database_name)
 }
 
 #[actix_web::main]

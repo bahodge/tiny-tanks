@@ -6,9 +6,10 @@ require "../src/token.cr"
 describe Token do
   describe "constructor" do
     it "initializes the token with passed arguments" do
-      token = Token.new(id: UUID.random, expires_at: Time.utc)
+      token = Token.new(id: UUID.random, user_id: UUID.random, expires_at: Time.utc)
       token.should_not be_nil
       token.id.should be_a(UUID)
+      token.user_id.should be_a(UUID)
       token.expires_at.should be_a(Time)
     end
 
@@ -27,14 +28,19 @@ describe Token do
     end
   end
 
-  describe "#is_valid" do
-    it "returns true when @expires_at is in the future" do
-      token = Token.new
+  describe "#is_valid?" do
+    it "returns true when @expires_at is in the future and user_id is not nil" do
+      token = Token.new user_id: UUID.random
       token.is_valid?.should eq(true)
     end
 
     it "returns false when @expires_at is in the past" do
       token = Token.new expires_at: Time.utc.shift days: -1
+      token.is_valid?.should eq(false)
+    end
+
+    it "returns false when @user_id is nil" do
+      token = Token.new user_id: nil
       token.is_valid?.should eq(false)
     end
   end
@@ -48,6 +54,18 @@ describe Token do
       token = Token.from_json(json)
 
       token.id.should be_a(UUID)
+      token.expires_at.should be_a(Time)
+    end
+
+    it "serializes to json string" do
+      json = Token.new(user_id: UUID.random).to_json
+
+      # Assert
+      json.should be_a(String)
+      token = Token.from_json(json)
+
+      token.id.should be_a(UUID)
+      token.user_id.should be_a(UUID)
       token.expires_at.should be_a(Time)
     end
   end

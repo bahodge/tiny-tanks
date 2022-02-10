@@ -8,15 +8,19 @@ class Token
   @[JSON::Field(key: "id")]
   property id : UUID
 
+  @[JSON::Field(key: "user_id", emit_null: false)]
+  property user_id : UUID | ::Nil
+
   # When this is called through from_json
   # It rounds the time to the second, and does not carry
   # over the smaller time measurements
   @[JSON::Field(key: "expires_at")]
   property expires_at : Time
 
-  getter :id, :expires_at
+  getter :id, :user_id, :expires_at
 
   def initialize(@id = UUID.random,
+                 @user_id = nil,
                  @expires_at = Time.utc.shift days: 1)
   end
 
@@ -24,6 +28,11 @@ class Token
     json.object do
       json.field "id", @id.to_s
       json.field "expires_at", @expires_at
+
+      # Don't json encode if user id is not provided
+      unless @user_id.nil?
+        json.field "user_id", @user_id.to_s
+      end
     end
   end
 
@@ -41,7 +50,7 @@ class Token
   end
 
   def is_valid?
-    @expires_at > Time.utc
+    @expires_at > Time.utc && !@user_id.nil?
   end
 
   def self.from_encoded(encoded : String)

@@ -26,7 +26,7 @@ class User
   def initialize(@name : String = "Default Name")
     # Create a random ID for this user
     @id = UUID.random
-    @token = Token.new
+    @token = Token.new user_id: @id
   end
 
   def to_json(json : JSON::Builder)
