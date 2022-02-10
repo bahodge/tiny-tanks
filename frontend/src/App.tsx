@@ -8,10 +8,21 @@ type User = {
 
 const BASE_URL = "http://127.0.0.1:4000";
 const USERS_ROUTE = "/users";
+const SESSIONS_ROUTE = "/sessions";
 const CREATE_USER_ROUTE = "/users/create";
 
 const App: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
+
+  const getSessions = (): Promise<User[]> => {
+    return fetch(BASE_URL + SESSIONS_ROUTE)
+      .then((response) => response.json())
+      .then((json) => {
+        console.log("data", json.data);
+        setUsers(json.data);
+        return json.data;
+      });
+  };
 
   const getUsers = (): Promise<User[]> => {
     return fetch(BASE_URL + USERS_ROUTE)
@@ -48,6 +59,7 @@ const App: React.FC = () => {
       <div>
         <h3>Users</h3>
         <button onClick={() => getUsers()}>getUsers</button>
+        <button onClick={() => getSessions()}>getSessions</button>
         <form onSubmit={createUser}>
           <label>
             Name

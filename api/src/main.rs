@@ -1,19 +1,15 @@
-use actix_web::{web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 
-mod database;
+// async fn sessions() -> impl Responder {
+//     HttpResponse::Ok()
+//         .content_type("text/plain")
+//         .header("Access-Control-Allow-Origin", "*")
+//         .body("fak")
+// }
 
-use crate::database::Database;
-
-/// Use the `Data<T>` extractor to access data in a handler.
-async fn get_database_name(db: web::Data<Database>) -> impl Responder {
-    println!("db name: {}", db.name);
-
-    let database_name = db.name.clone();
-
-    HttpResponse::Ok()
-        .content_type("text/plain")
-        .header("Access-Control-Allow-Origin", "*")
-        .body(database_name)
+async fn sessions(req: HttpRequest) -> &'static str {
+    println!("req: {:?}", req);
+    "This is /sessions!"
 }
 
 #[actix_web::main]
@@ -22,11 +18,7 @@ async fn main() -> std::io::Result<()> {
 
     // Start HTTP server
     HttpServer::new(move || {
-        let db = Database::new(String::from("tanks"));
-        let data = web::Data::new(db);
-        App::new()
-            .data(data.clone())
-            .service(web::resource("/get_database_name").route(web::get().to(get_database_name)))
+        App::new().service(web::resource("/sessions").route(web::get().to(sessions)))
     })
     .bind("127.0.0.1:4000")?
     .run()
