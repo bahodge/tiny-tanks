@@ -2,7 +2,9 @@ import React, { useEffect, useState, useRef } from "react";
 
 import "./Game.css";
 
-import { Application } from "pixi.js";
+import { Application, Texture } from "pixi.js";
+
+import GRASS_1 from "../assets/grass1.jpg";
 
 const Game: React.FC = () => {
   const [app, setApp] = useState<Application>();
@@ -14,7 +16,6 @@ const Game: React.FC = () => {
       new Application({
         resolution: 2,
         autoDensity: true,
-        // backgroundAlpha: 0,
         antialias: true,
         backgroundColor: 0x000000,
       })
@@ -35,6 +36,10 @@ const Game: React.FC = () => {
 
     // Attach the pixiApp to the target
     targetEl.current.appendChild(app.view);
+
+    // Build the background
+    // const background = new Texture(GRASS_1);
+    // app.stage.addChild(background);
 
     // Clean up the world
     return () => {
