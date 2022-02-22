@@ -1,68 +1,52 @@
-import React, { useState } from "react";
-// import fetch from "node-fetch";
+import React, { useEffect, useState, useRef } from "react";
 
-export enum GameState {
-  UNINITIALIZED,
-  CREATING_ROOM,
-  PLAYING,
-  PAUSED,
-  OVER,
-}
+import "./Game.css";
 
-interface IGameProps {
-  setState: (newState: GameState) => void;
-}
-
-const UninitializedGame: React.FC<IGameProps> = ({ setState }) => {
-  const createNewGameSession = () => {
-    // Create a new game, this game is held in memory
-    return fetch("http://localhost:4000/game_session", {
-      method: "post",
-      body: JSON.stringify({ data: "hello from post" }),
-    })
-      .then((response) => console.log("response", response))
-      .then(() => setState(GameState.CREATING_ROOM));
-  };
-
-  return (
-    <div>
-      <h2>Game is UNINITIALIZED</h2>
-
-      <button onClick={() => createNewGameSession()}>New Game</button>
-    </div>
-  );
-};
-
-const Lobby: React.FC<IGameProps> = ({ setState }) => {
-  const closeRoom = () => {
-    return fetch("http://localhost:4000/game_session", {
-      method: "delete",
-    })
-      .then((response) => console.log("response", response))
-      .then(() => setState(GameState.UNINITIALIZED));
-  };
-
-  return (
-    <div>
-      <h2>Waiting for players to join</h2>
-      <button onClick={() => closeRoom()}>Close Room</button>
-    </div>
-  );
-};
+import { Application } from "pixi.js";
 
 const Game: React.FC = () => {
-  const [state, setState] = useState(GameState.UNINITIALIZED);
+  const [app, setApp] = useState<Application>();
+  const targetEl = useRef() as React.MutableRefObject<HTMLInputElement>;
 
-  switch (state) {
-    case GameState.UNINITIALIZED:
-      return <UninitializedGame setState={setState} />;
-    case GameState.CREATING_ROOM:
-      return <Lobby setState={setState} />;
-    default:
-      break;
-  }
+  // Create the application that will be used by the user
+  useEffect(() => {
+    setApp(
+      new Application({
+        resolution: 2,
+        autoDensity: true,
+        // backgroundAlpha: 0,
+        antialias: true,
+        backgroundColor: 0x000000,
+      })
+    );
+  }, []);
 
-  return <div></div>;
+  // Create the world
+  useEffect(() => {
+    if (!app) return;
+    if (!targetEl.current) return;
+
+    app.ticker.maxFPS = 60;
+
+    // Styling canvas
+    app.view.style.width = "100%";
+    app.view.style.height = "100%";
+    app.view.style.objectFit = "fill";
+
+    // Attach the pixiApp to the target
+    targetEl.current.appendChild(app.view);
+
+    // Clean up the world
+    return () => {
+      app?.destroy();
+    };
+  }, [app]);
+
+  return (
+    <div className="game-container">
+      <span ref={targetEl} id="stage"></span>
+    </div>
+  );
 };
 
 export default Game;
